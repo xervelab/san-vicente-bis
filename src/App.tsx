@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactElement } from 'react'
+import { AuthPage, type AuthMode } from './components/AuthPage'
+import { BrandLogo } from './components/BrandLogo'
 import { ThemeToggle } from './components/ThemeToggle'
 import {
   modules,
@@ -17,7 +19,7 @@ import { ResidentModule } from './modules/ResidentModule'
 import { UsersModule } from './modules/UsersModule'
 import type { ModuleKey, Theme } from './types/dashboard'
 
-const moduleIcons: Record<ModuleKey, JSX.Element> = {
+const moduleIcons: Record<ModuleKey, ReactElement> = {
   resident: (
     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
       <circle cx="12" cy="8" r="3" />
@@ -81,12 +83,13 @@ const barangayInfo = {
   city: 'Quezon City',
 }
 
-const loggedInUser = {
-  name: 'Maria Santos',
-  role: 'Barangay Admin',
-}
-
 function App() {
+  const [authMode, setAuthMode] = useState<AuthMode>('login')
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [currentUser, setCurrentUser] = useState({
+    name: 'Maria Santos',
+    role: 'Barangay Admin',
+  })
   const [activeModule, setActiveModule] = useState<ModuleKey>('resident')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
@@ -122,7 +125,7 @@ function App() {
   )
 
   const moduleContent = useMemo(() => {
-    const contentMap: Record<ModuleKey, JSX.Element> = {
+    const contentMap: Record<ModuleKey, ReactElement> = {
       resident: <ResidentModule />,
       household: <HouseholdModule />,
       certificates: <CertificatesModule />,
@@ -136,6 +139,19 @@ function App() {
 
     return contentMap[activeModule]
   }, [activeModule])
+
+  if (!isAuthenticated) {
+    return (
+      <AuthPage
+        mode={authMode}
+        onChangeMode={setAuthMode}
+        onAuthenticate={(user) => {
+          setCurrentUser(user)
+          setIsAuthenticated(true)
+        }}
+      />
+    )
+  }
 
   return (
     <div className="min-h-screen w-full p-2 sm:p-3 lg:p-4">
@@ -159,9 +175,7 @@ function App() {
           <div className="mb-4 border-b border-slate-200 pb-4 dark:border-slate-700">
             <div className="flex items-center justify-center">
               <div className="flex items-center gap-2">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white dark:bg-slate-100 dark:text-slate-900">
-                  BS
-                </div>
+                <BrandLogo sizeClassName="h-10 w-10" textClassName="text-sm" />
                 {!isSidebarCollapsed && (
                   <div>
                     <h1 className="text-sm font-bold text-slate-900 dark:text-white">{barangayInfo.name}</h1>
@@ -230,7 +244,7 @@ function App() {
           <div className="mt-4 border-t border-slate-200 pt-4 dark:border-slate-700">
             <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-2'}`}>
               <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 text-xs font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-100">
-                {loggedInUser.name
+                {currentUser.name
                   .split(' ')
                   .map((name) => name[0])
                   .join('')
@@ -238,8 +252,8 @@ function App() {
               </div>
               {!isSidebarCollapsed && (
                 <div>
-                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{loggedInUser.name}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{loggedInUser.role}</p>
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{currentUser.name}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{currentUser.role}</p>
                 </div>
               )}
             </div>
@@ -296,6 +310,10 @@ function App() {
                 />
                 <button
                   type="button"
+                  onClick={() => {
+                    setIsAuthenticated(false)
+                    setAuthMode('login')
+                  }}
                   className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 text-sm font-medium text-rose-700 transition hover:bg-rose-100 dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-300 dark:hover:bg-rose-900/40"
                   title="Logout"
                   aria-label="Logout"

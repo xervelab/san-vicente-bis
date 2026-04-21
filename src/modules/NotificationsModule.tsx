@@ -1,6 +1,17 @@
-import { notificationRows, statusStyles } from '../data/dashboardData'
+import { statusStyles } from '../data/dashboardData'
+import { useNotificationsModule } from '../composables/useNotificationsModule'
 
 export function NotificationsModule() {
+  const { items, isLoading, error } = useNotificationsModule()
+
+  if (isLoading) {
+    return <p className="text-sm text-slate-500 dark:text-slate-400">Loading notifications...</p>
+  }
+
+  if (error) {
+    return <p className="text-sm text-rose-600 dark:text-rose-300">{error}</p>
+  }
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full text-left text-sm">
@@ -13,7 +24,7 @@ export function NotificationsModule() {
           </tr>
         </thead>
         <tbody>
-          {notificationRows.map((row) => (
+          {items.map((row) => (
             <tr key={`${row.channel}-${row.recipient}`} className="border-b border-slate-100 dark:border-slate-800">
               <td className="px-3 py-2">{row.channel}</td>
               <td className="px-3 py-2">{row.recipient}</td>

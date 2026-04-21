@@ -1,6 +1,17 @@
-import { residentRows, statusStyles } from '../data/dashboardData'
+import { statusStyles } from '../data/dashboardData'
+import { useResidentModule } from '../composables/useResidentModule'
 
 export function ResidentModule() {
+  const { items, isLoading, error } = useResidentModule()
+
+  if (isLoading) {
+    return <p className="text-sm text-slate-500 dark:text-slate-400">Loading residents...</p>
+  }
+
+  if (error) {
+    return <p className="text-sm text-rose-600 dark:text-rose-300">{error}</p>
+  }
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full text-left text-sm">
@@ -13,7 +24,7 @@ export function ResidentModule() {
           </tr>
         </thead>
         <tbody>
-          {residentRows.map((row) => (
+          {items.map((row) => (
             <tr key={row.name} className="border-b border-slate-100 dark:border-slate-800">
               <td className="px-3 py-2">{row.name}</td>
               <td className="px-3 py-2">{row.age}</td>

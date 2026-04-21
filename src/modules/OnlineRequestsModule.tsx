@@ -1,6 +1,17 @@
-import { onlineRequestRows, statusStyles } from '../data/dashboardData'
+import { statusStyles } from '../data/dashboardData'
+import { useOnlineRequestsModule } from '../composables/useOnlineRequestsModule'
 
 export function OnlineRequestsModule() {
+  const { items, isLoading, error } = useOnlineRequestsModule()
+
+  if (isLoading) {
+    return <p className="text-sm text-slate-500 dark:text-slate-400">Loading online requests...</p>
+  }
+
+  if (error) {
+    return <p className="text-sm text-rose-600 dark:text-rose-300">{error}</p>
+  }
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full text-left text-sm">
@@ -14,7 +25,7 @@ export function OnlineRequestsModule() {
           </tr>
         </thead>
         <tbody>
-          {onlineRequestRows.map((row) => (
+          {items.map((row) => (
             <tr key={row.id} className="border-b border-slate-100 dark:border-slate-800">
               <td className="px-3 py-2">{row.id}</td>
               <td className="px-3 py-2">{row.resident}</td>

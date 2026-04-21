@@ -1,6 +1,17 @@
-import { blotterRows, statusStyles } from '../data/dashboardData'
+import { statusStyles } from '../data/dashboardData'
+import { useBlotterModule } from '../composables/useBlotterModule'
 
 export function BlotterModule() {
+  const { items, isLoading, error } = useBlotterModule()
+
+  if (isLoading) {
+    return <p className="text-sm text-slate-500 dark:text-slate-400">Loading blotter records...</p>
+  }
+
+  if (error) {
+    return <p className="text-sm text-rose-600 dark:text-rose-300">{error}</p>
+  }
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full text-left text-sm">
@@ -13,7 +24,7 @@ export function BlotterModule() {
           </tr>
         </thead>
         <tbody>
-          {blotterRows.map((row) => (
+          {items.map((row) => (
             <tr key={row.code} className="border-b border-slate-100 dark:border-slate-800">
               <td className="px-3 py-2">{row.code}</td>
               <td className="px-3 py-2">{row.complainant}</td>
