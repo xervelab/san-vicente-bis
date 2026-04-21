@@ -32,7 +32,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(loadStoredUser)
   const [theme, setTheme] = useState<Theme>(() => {
     const saved = localStorage.getItem('bis-theme')
-    return saved === 'dark' ? 'dark' : 'light'
+    const resolved: Theme = saved === 'dark' ? 'dark' : 'light'
+    // Apply immediately so there's no flash before the first useEffect
+    document.documentElement.classList.toggle('dark', resolved === 'dark')
+    return resolved
   })
   const [activeModule, setActiveModule] = useState<ModuleKey>(() => {
     const user = loadStoredUser()
