@@ -71,3 +71,33 @@ export default defineConfig([
   },
 ])
 ```
+
+## API Service Configuration
+
+This project supports two service modes:
+
+- **In-memory mock services** (default)
+- **Real HTTP API services** (environment-driven)
+
+Copy `.env.example` to `.env` and configure:
+
+```bash
+cp .env.example .env
+```
+
+```env
+VITE_USE_HTTP_SERVICES=true
+VITE_API_BASE_URL=http://localhost:3000/api
+```
+
+When HTTP mode is enabled, module services call these endpoints:
+
+- `GET/POST /residents`, `GET/PATCH/DELETE /residents/:id`
+- `GET/POST /households`, `GET/PATCH/DELETE /households/:id`
+- `GET/POST /certificates`, `GET/PATCH/DELETE /certificates/:id`
+- `GET/POST /blotter-records`, `GET/PATCH/DELETE /blotter-records/:id`
+- `GET/POST /users`, `GET/PATCH/DELETE /users/:id`
+- `GET /reports`, `GET /reports/summary`
+- `GET/POST /online-requests`, `GET/PATCH/DELETE /online-requests/:id`
+- `GET/POST /notifications`, `GET/PATCH/DELETE /notifications/:id`, `POST /notifications/send`
+- `GET/POST /appointments`, `GET/PATCH/DELETE /appointments/:id`

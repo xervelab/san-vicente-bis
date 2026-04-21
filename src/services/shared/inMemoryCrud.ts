@@ -1,6 +1,6 @@
-type Identifier = string
+export type Identifier = string
 
-type CrudMethods<T> = {
+export type CrudMethods<T> = {
   getAll: () => Promise<T[]>
   getById: (id: Identifier) => Promise<T | undefined>
   create: (payload: T) => Promise<T>

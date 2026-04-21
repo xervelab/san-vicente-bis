@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactElement } from 'react'
 import { AuthPage, type AuthMode } from './components/AuthPage'
 import { BrandLogo } from './components/BrandLogo'
+import { LoadingOverlay } from './components/LoadingOverlay'
 import { ThemeToggle } from './components/ThemeToggle'
 import {
   modules,
@@ -91,6 +92,8 @@ function App() {
     role: 'Barangay Admin',
   })
   const [activeModule, setActiveModule] = useState<ModuleKey>('resident')
+  const [isModuleLoading, setIsModuleLoading] = useState(false)
+  const [isLogoutLoading, setIsLogoutLoading] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [theme, setTheme] = useState<Theme>(() => {
@@ -140,6 +143,31 @@ function App() {
     return contentMap[activeModule]
   }, [activeModule])
 
+  const handleModuleNavigation = (moduleKey: ModuleKey) => {
+    setIsMenuOpen(false)
+
+    if (moduleKey === activeModule) {
+      return
+    }
+
+    setIsModuleLoading(true)
+
+    window.setTimeout(() => {
+      setActiveModule(moduleKey)
+      setIsModuleLoading(false)
+    }, 550)
+  }
+
+  const handleLogout = () => {
+    setIsLogoutLoading(true)
+
+    window.setTimeout(() => {
+      setIsAuthenticated(false)
+      setAuthMode('login')
+      setIsLogoutLoading(false)
+    }, 900)
+  }
+
   if (!isAuthenticated) {
     return (
       <AuthPage
@@ -155,6 +183,8 @@ function App() {
 
   return (
     <div className="min-h-screen w-full p-2 sm:p-3 lg:p-4">
+      <LoadingOverlay isVisible={isLogoutLoading} message="Signing out..." fullscreen />
+
       {isMenuOpen && (
         <button
           type="button"
@@ -203,10 +233,8 @@ function App() {
             {modules.map((module) => (
               <button
                 key={module.key}
-                onClick={() => {
-                  setActiveModule(module.key)
-                  setIsMenuOpen(false)
-                }}
+                onClick={() => handleModuleNavigation(module.key)}
+                disabled={isModuleLoading || isLogoutLoading}
                 className={`w-full rounded-lg px-3 py-2 text-sm font-medium transition ${
                   activeModule === module.key
                     ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
@@ -310,10 +338,8 @@ function App() {
                 />
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsAuthenticated(false)
-                    setAuthMode('login')
-                  }}
+                  onClick={handleLogout}
+                  disabled={isLogoutLoading}
                   className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 text-sm font-medium text-rose-700 transition hover:bg-rose-100 dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-300 dark:hover:bg-rose-900/40"
                   title="Logout"
                   aria-label="Logout"
@@ -343,8 +369,26 @@ function App() {
 
           <section className="grid gap-3 lg:gap-4 2xl:grid-cols-[1fr_340px]">
             <main className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-6">
-              <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">{activeModuleInfo?.description}</p>
-              {moduleContent}
+              {isModuleLoading ? (
+                <div className="animate-pulse">
+                  <div className="mb-4 h-4 w-1/3 rounded bg-slate-200 dark:bg-slate-700" />
+                  <div className="mb-3 h-3 w-2/3 rounded bg-slate-200 dark:bg-slate-700" />
+                  <div className="mb-6 h-3 w-1/2 rounded bg-slate-200 dark:bg-slate-700" />
+
+                  <div className="space-y-3">
+                    <div className="h-10 w-full rounded bg-slate-200 dark:bg-slate-700" />
+                    <div className="h-10 w-full rounded bg-slate-200 dark:bg-slate-700" />
+                    <div className="h-10 w-full rounded bg-slate-200 dark:bg-slate-700" />
+                    <div className="h-10 w-full rounded bg-slate-200 dark:bg-slate-700" />
+                    <div className="h-10 w-full rounded bg-slate-200 dark:bg-slate-700" />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">{activeModuleInfo?.description}</p>
+                  {moduleContent}
+                </>
+              )}
             </main>
 
             <aside className="space-y-4">

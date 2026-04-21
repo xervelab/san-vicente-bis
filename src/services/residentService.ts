@@ -1,8 +1,12 @@
 import { residentRows } from '../data/dashboardData'
 import type { ResidentRow } from '../types/dashboard'
-import { createInMemoryCrudService } from './shared/inMemoryCrud'
+import { createHttpCrudService } from './shared/httpCrud'
+import { createInMemoryCrudService, type CrudMethods } from './shared/inMemoryCrud'
+import { USE_HTTP_SERVICES } from './shared/serviceConfig'
 
-const residentCrud = createInMemoryCrudService<ResidentRow>(residentRows, (item) => item.name)
+const residentCrud: CrudMethods<ResidentRow> = USE_HTTP_SERVICES
+  ? createHttpCrudService<ResidentRow>('/residents')
+  : createInMemoryCrudService<ResidentRow>(residentRows, (item) => item.name)
 
 export const residentService = {
   ...residentCrud,
