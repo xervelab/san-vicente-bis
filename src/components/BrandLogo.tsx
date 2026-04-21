@@ -10,9 +10,9 @@ export function BrandLogo({
   return (
     <div
       className={`inline-flex items-center justify-center rounded-full bg-slate-900 font-bold text-white dark:bg-slate-100 dark:text-slate-900 ${sizeClassName} ${textClassName}`}
-      aria-label="Barangay San Isidro logo"
+      aria-label="Barangay San Vicente logo"
     >
-      BS
+      SV
     </div>
   )
 }

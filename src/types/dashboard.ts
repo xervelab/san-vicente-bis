@@ -17,6 +17,57 @@ export type Module = {
 
 export type Theme = 'light' | 'dark'
 
+// ── Roles ──────────────────────────────────────────────────────────────────────
+export type UserRole = 'admin' | 'staff' | 'approver' | 'resident'
+
+export type CurrentUser = {
+  name: string
+  email: string
+  role: UserRole
+  roleName: string // display label
+}
+
+// Which modules each role may access.
+// Roles not in this map are treated as no-access.
+export const ROLE_MODULE_ACCESS: Record<UserRole, ModuleKey[]> = {
+  admin: [
+    'resident',
+    'household',
+    'certificates',
+    'blotter',
+    'users',
+    'reports',
+    'onlineRequests',
+    'notifications',
+    'appointments',
+  ],
+  staff: [
+    'resident',
+    'household',
+    'certificates',
+    'blotter',
+    'reports',
+    'onlineRequests',
+    'notifications',
+    'appointments',
+  ],
+  // Barangay captain / approver: review & approve focused
+  approver: [
+    'certificates',
+    'blotter',
+    'onlineRequests',
+    'appointments',
+    'reports',
+    'notifications',
+  ],
+  // Residents only see their own service-facing modules
+  resident: ['onlineRequests', 'appointments', 'notifications'],
+}
+
+export function canAccessModule(role: UserRole, module: ModuleKey): boolean {
+  return ROLE_MODULE_ACCESS[role].includes(module)
+}
+
 export type ResidentRow = {
   name: string
   age: number
