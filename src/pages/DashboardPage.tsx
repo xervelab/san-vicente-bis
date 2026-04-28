@@ -17,7 +17,7 @@ import { HouseholdModule } from '../modules/HouseholdModule'
 import { NotificationsModule } from '../modules/NotificationsModule'
 import { OnlineRequestsModule } from '../modules/OnlineRequestsModule'
 import { ReportsModule } from '../modules/ReportsModule'
-import { ResidentModule } from '../modules/ResidentModule'
+import { ResidentModule, ADD_RESIDENT_EVENT } from '../modules/ResidentModule'
 import { UsersModule } from '../modules/UsersModule'
 import type { ModuleKey } from '../types/dashboard'
 import { canAccessModule, ROLE_MODULE_ACCESS } from '../types/dashboard'
@@ -401,6 +401,18 @@ export function DashboardPage() {
                     <button
                       key={action}
                       type="button"
+                      onClick={() => {
+                        if (action === 'Add Resident') {
+                          // Navigate to the resident module first, then open the modal
+                          if (activeModule !== 'resident') {
+                            navigate(`/dashboard/resident`)
+                          }
+                          // Dispatch the custom event after a short delay to ensure the module is mounted
+                          window.setTimeout(() => {
+                            window.dispatchEvent(new Event(ADD_RESIDENT_EVENT))
+                          }, activeModule !== 'resident' ? 600 : 0)
+                        }
+                      }}
                       className="rounded-lg bg-slate-100 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                     >
                       {action}
