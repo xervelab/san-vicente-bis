@@ -199,6 +199,7 @@ export function ResidentModule() {
         }}
         onConfirm={handleDeleteConfirm}
         itemName={deletingResident?.name ?? ''}
+        itemLabel="Resident"
         isDeleting={isDeleting}
       />
     </>
