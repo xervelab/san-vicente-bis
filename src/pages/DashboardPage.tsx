@@ -13,7 +13,7 @@ import {
 import { AppointmentsModule } from '../modules/AppointmentsModule'
 import { BlotterModule } from '../modules/BlotterModule'
 import { CertificatesModule } from '../modules/CertificatesModule'
-import { HouseholdModule } from '../modules/HouseholdModule'
+import { HouseholdModule, ADD_HOUSEHOLD_EVENT } from '../modules/HouseholdModule'
 import { NotificationsModule } from '../modules/NotificationsModule'
 import { OnlineRequestsModule } from '../modules/OnlineRequestsModule'
 import { ReportsModule } from '../modules/ReportsModule'
@@ -411,6 +411,13 @@ export function DashboardPage() {
                           window.setTimeout(() => {
                             window.dispatchEvent(new Event(ADD_RESIDENT_EVENT))
                           }, activeModule !== 'resident' ? 600 : 0)
+                        } else if (action === 'Create Household') {
+                          if (activeModule !== 'household') {
+                            navigate(`/dashboard/household`)
+                          }
+                          window.setTimeout(() => {
+                            window.dispatchEvent(new Event(ADD_HOUSEHOLD_EVENT))
+                          }, activeModule !== 'household' ? 600 : 0)
                         }
                       }}
                       className="rounded-lg bg-slate-100 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"

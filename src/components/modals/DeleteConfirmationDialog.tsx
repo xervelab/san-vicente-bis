@@ -4,6 +4,8 @@ type DeleteConfirmationDialogProps = {
   onConfirm: () => Promise<void> | void
   /** Name or identifier shown in the dialog. */
   itemName: string
+  /** Label shown in the dialog title, e.g. "Resident", "Household". Defaults to "Record". */
+  itemLabel?: string
   isDeleting?: boolean
 }
 
@@ -12,6 +14,7 @@ export function DeleteConfirmationDialog({
   onClose,
   onConfirm,
   itemName,
+  itemLabel = 'Record',
   isDeleting = false,
 }: DeleteConfirmationDialogProps) {
   if (!isOpen) return null
@@ -42,7 +45,7 @@ export function DeleteConfirmationDialog({
         {/* Content */}
         <div className="px-6 pb-2 pt-4 text-center">
           <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
-            Delete Resident
+            Delete {itemLabel}
           </h3>
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
             Are you sure you want to delete{' '}
