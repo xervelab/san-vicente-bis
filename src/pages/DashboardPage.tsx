@@ -10,7 +10,7 @@ import {
   recentActivity,
   statCards,
 } from '../data/dashboardData'
-import { AppointmentsModule } from '../modules/AppointmentsModule'
+import { AppointmentsModule, SCHEDULE_APPOINTMENT_EVENT } from '../modules/AppointmentsModule'
 import { BlotterModule, FILE_BLOTTER_EVENT } from '../modules/BlotterModule'
 import { CertificatesModule, ISSUE_CERTIFICATE_EVENT } from '../modules/CertificatesModule'
 import { HouseholdModule, ADD_HOUSEHOLD_EVENT } from '../modules/HouseholdModule'
@@ -405,6 +405,7 @@ export function DashboardPage() {
                       'Issue Certificate': 'certificates',
                       'Record Blotter': 'blotter',
                       'Add User': 'users',
+                      'Schedule Appointment': 'appointments',
                       'Approve Online Request': 'onlineRequests',
                     }
                     const isActive = actionModuleMap[action] === activeModule
@@ -449,6 +450,13 @@ export function DashboardPage() {
                             window.setTimeout(() => {
                               window.dispatchEvent(new Event(ADD_USER_EVENT))
                             }, activeModule !== 'users' ? 600 : 0)
+                          } else if (action === 'Schedule Appointment') {
+                            if (activeModule !== 'appointments') {
+                              navigate(`/dashboard/appointments`)
+                            }
+                            window.setTimeout(() => {
+                              window.dispatchEvent(new Event(SCHEDULE_APPOINTMENT_EVENT))
+                            }, activeModule !== 'appointments' ? 600 : 0)
                           }
                         }}
                         className={`rounded-lg px-3 py-2 text-left text-sm transition ${

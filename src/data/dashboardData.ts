@@ -241,6 +241,7 @@ export const quickActions = [
   'Issue Certificate',
   'Record Blotter',
   'Add User',
+  'Schedule Appointment',
   'Approve Online Request',
 ]
 
@@ -271,4 +272,6 @@ export const statusStyles: Record<string, string> = {
   Pending: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
   Completed: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300',
   Rejected: 'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300',
+  Approved: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300',
+  Cancelled: 'bg-slate-200 text-slate-700 dark:bg-slate-600/40 dark:text-slate-200',
 }
