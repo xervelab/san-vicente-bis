@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useHouseholdModule } from '../composables/useHouseholdModule'
 import { HouseholdFormModal } from '../components/modals/HouseholdFormModal'
 import { DeleteConfirmationDialog } from '../components/modals/DeleteConfirmationDialog'
+import { DataTable, type ColumnDef } from '../components/DataTable'
 import type { HouseholdRow } from '../types/dashboard'
 
 /** Custom event name used by Quick Actions to open the Add Household modal. */
@@ -28,6 +29,27 @@ export function HouseholdModule() {
     window.addEventListener(ADD_HOUSEHOLD_EVENT, handleExternalAdd)
     return () => window.removeEventListener(ADD_HOUSEHOLD_EVENT, handleExternalAdd)
   }, [])
+
+  // ── Column config ──────────────────────────────────────────────────────────
+  const purokOptions = useMemo(
+    () => [...new Set(items.map((r) => r.purok))].sort(),
+    [items],
+  )
+
+  const columns: ColumnDef<HouseholdRow>[] = useMemo(
+    () => [
+      { key: 'head', header: 'Household Head', sortable: true },
+      { key: 'members', header: 'Members', sortable: true },
+      { key: 'address', header: 'Address', sortable: true },
+      {
+        key: 'purok',
+        header: 'Purok',
+        sortable: true,
+        filter: { type: 'select', options: purokOptions },
+      },
+    ],
+    [purokOptions],
+  )
 
   // ── Handlers ───────────────────────────────────────────────────────────────
   function openAddModal() {
@@ -103,75 +125,38 @@ export function HouseholdModule() {
         </button>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-slate-200 text-slate-500 dark:border-slate-700 dark:text-slate-400">
-            <tr>
-              <th className="px-3 py-2">Household Head</th>
-              <th className="px-3 py-2">Members</th>
-              <th className="px-3 py-2">Address</th>
-              <th className="px-3 py-2">Purok</th>
-              <th className="px-3 py-2 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((row) => (
-              <tr
-                key={row.head}
-                className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-              >
-                <td className="px-3 py-2">{row.head}</td>
-                <td className="px-3 py-2">{row.members}</td>
-                <td className="px-3 py-2">{row.address}</td>
-                <td className="px-3 py-2">{row.purok}</td>
-                <td className="px-3 py-2 text-right">
-                  <div className="inline-flex gap-1">
-                    <button
-                      type="button"
-                      onClick={() => openEditModal(row)}
-                      title="Edit"
-                      className="rounded-md p-1.5 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-400 transition-colors"
-                    >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                        />
-                      </svg>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => openDeleteDialog(row)}
-                      title="Delete"
-                      className="rounded-md p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-400 transition-colors"
-                    >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-
-            {items.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-3 py-8 text-center text-sm text-slate-400 dark:text-slate-500">
-                  No households found. Click "Add Household" to get started.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      {/* DataTable */}
+      <DataTable<HouseholdRow>
+        columns={columns}
+        data={items}
+        rowKey={(row) => row.head}
+        searchPlaceholder="Search households…"
+        emptyMessage='No households found. Click "Add Household" to get started.'
+        renderActions={(row) => (
+          <div className="inline-flex gap-1">
+            <button
+              type="button"
+              onClick={() => openEditModal(row)}
+              title="Edit"
+              className="rounded-md p-1.5 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-400 transition-colors"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => openDeleteDialog(row)}
+              title="Delete"
+              className="rounded-md p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-400 transition-colors"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        )}
+      />
 
       {/* Add / Edit Modal */}
       <HouseholdFormModal
