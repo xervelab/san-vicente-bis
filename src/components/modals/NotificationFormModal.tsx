@@ -137,7 +137,7 @@ export function NotificationFormModal({
             <select
               id="notif-channel"
               value={form.channel}
-              onChange={(e) => setForm({ ...form, channel: e.target.value })}
+              onChange={(e) => setForm({ ...form, channel: e.target.value as 'SMS' | 'Email' })}
               className={`${inputBaseClass} ${errors.channel ? inputErrorClass : inputNormalClass}`}
             >
               <option value="">Select Channel</option>

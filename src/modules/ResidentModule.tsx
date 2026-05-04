@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
-import { statusStyles } from '../data/dashboardData'
+import { useEffect, useState, useMemo } from 'react'
 import { useResidentModule } from '../composables/useResidentModule'
 import { ResidentFormModal } from '../components/modals/ResidentFormModal'
 import { DeleteConfirmationDialog } from '../components/modals/DeleteConfirmationDialog'
+import { DataTable, StatusBadge, type ColumnDef } from '../components/DataTable'
 import type { ResidentRow } from '../types/dashboard'
 
 /** Custom event name used by Quick Actions to open the Add Resident modal. */
@@ -30,6 +30,38 @@ export function ResidentModule() {
     return () => window.removeEventListener(ADD_RESIDENT_EVENT, handleExternalAdd)
   }, [])
 
+  // ── Column config ──────────────────────────────────────────────────────────
+  const statusOptions = useMemo(
+    () => [...new Set(items.map((r) => r.status))],
+    [items],
+  )
+
+  const purokOptions = useMemo(
+    () => [...new Set(items.map((r) => r.purok))].sort(),
+    [items],
+  )
+
+  const columns: ColumnDef<ResidentRow>[] = useMemo(
+    () => [
+      { key: 'name', header: 'Name', sortable: true },
+      { key: 'age', header: 'Age', sortable: true },
+      {
+        key: 'purok',
+        header: 'Purok',
+        sortable: true,
+        filter: { type: 'select', options: purokOptions },
+      },
+      {
+        key: 'status',
+        header: 'Status',
+        sortable: true,
+        filter: { type: 'status', options: statusOptions },
+        render: (row) => <StatusBadge status={row.status} />,
+      },
+    ],
+    [statusOptions, purokOptions],
+  )
+
   // ── Handlers ───────────────────────────────────────────────────────────────
   function openAddModal() {
     setEditingResident(null)
@@ -50,7 +82,6 @@ export function ResidentModule() {
     setIsSubmitting(true)
     try {
       if (editingResident) {
-        // Update – use the original name as the identifier
         await updateItem(editingResident.name, data)
       } else {
         await createItem(data)
@@ -105,81 +136,38 @@ export function ResidentModule() {
         </button>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-slate-200 text-slate-500 dark:border-slate-700 dark:text-slate-400">
-            <tr>
-              <th className="px-3 py-2">Name</th>
-              <th className="px-3 py-2">Age</th>
-              <th className="px-3 py-2">Purok</th>
-              <th className="px-3 py-2">Status</th>
-              <th className="px-3 py-2 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((row) => (
-              <tr
-                key={row.name}
-                className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-              >
-                <td className="px-3 py-2">{row.name}</td>
-                <td className="px-3 py-2">{row.age}</td>
-                <td className="px-3 py-2">{row.purok}</td>
-                <td className="px-3 py-2">
-                  <span
-                    className={`rounded-full px-2 py-1 text-xs font-semibold ${statusStyles[row.status] ?? ''}`}
-                  >
-                    {row.status}
-                  </span>
-                </td>
-                <td className="px-3 py-2 text-right">
-                  <div className="inline-flex gap-1">
-                    <button
-                      type="button"
-                      onClick={() => openEditModal(row)}
-                      title="Edit"
-                      className="rounded-md p-1.5 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-400 transition-colors"
-                    >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                        />
-                      </svg>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => openDeleteDialog(row)}
-                      title="Delete"
-                      className="rounded-md p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-400 transition-colors"
-                    >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-
-            {items.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-3 py-8 text-center text-sm text-slate-400 dark:text-slate-500">
-                  No residents found. Click "Add Resident" to get started.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      {/* DataTable */}
+      <DataTable<ResidentRow>
+        columns={columns}
+        data={items}
+        rowKey={(row) => row.name}
+        searchPlaceholder="Search residents…"
+        emptyMessage='No residents found. Click "Add Resident" to get started.'
+        renderActions={(row) => (
+          <div className="inline-flex gap-1">
+            <button
+              type="button"
+              onClick={() => openEditModal(row)}
+              title="Edit"
+              className="rounded-md p-1.5 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-400 transition-colors"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => openDeleteDialog(row)}
+              title="Delete"
+              className="rounded-md p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-400 transition-colors"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        )}
+      />
 
       {/* Add / Edit Modal */}
       <ResidentFormModal
