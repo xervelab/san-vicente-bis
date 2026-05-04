@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo, useState } from 'react'
+import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { useDebounce } from '../composables/shared/useDebounce'
 import { statusStyles } from '../data/dashboardData'
 
@@ -39,6 +39,12 @@ export type ColumnDef<T> = {
   align?: 'left' | 'center' | 'right'
 }
 
+// ── Pagination defaults ──────────────────────────────────────────────────────
+
+export const PAGE_SIZE_OPTIONS = [5, 10, 25, 50] as const
+export type PageSize = (typeof PAGE_SIZE_OPTIONS)[number]
+const DEFAULT_PAGE_SIZE: PageSize = 10
+
 // ── Component props ──────────────────────────────────────────────────────────
 
 type DataTableProps<T> = {
@@ -56,6 +62,10 @@ type DataTableProps<T> = {
   searchable?: boolean
   /** Placeholder text for the search input. */
   searchPlaceholder?: string
+  /** Whether to enable pagination. Defaults to true. */
+  paginated?: boolean
+  /** Default page size. Defaults to 10. */
+  defaultPageSize?: PageSize
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -97,20 +107,24 @@ export function DataTable<T>({
   emptyMessage = 'No records found.',
   searchable = true,
   searchPlaceholder = 'Search…',
+  paginated = true,
+  defaultPageSize = DEFAULT_PAGE_SIZE,
 }: DataTableProps<T>) {
   // ── Global search ────────────────────────────────────────────────────────
   const [searchText, setSearchText] = useState('')
   const debouncedSearch = useDebounce(searchText, 300)
 
   // ── Column filters ───────────────────────────────────────────────────────
-  // key → selected value (empty string = all)
   const [columnFilters, setColumnFilters] = useState<Record<string, string>>({})
-  // key → { from, to } for date filters
   const [dateFilters, setDateFilters] = useState<Record<string, { from: string; to: string }>>({})
 
   // ── Sorting ──────────────────────────────────────────────────────────────
   const [sortKey, setSortKey] = useState<string | null>(null)
   const [sortDir, setSortDir] = useState<SortDirection>(null)
+
+  // ── Pagination ───────────────────────────────────────────────────────────
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState<PageSize>(defaultPageSize)
 
   function toggleSort(key: string) {
     if (sortKey !== key) {
@@ -177,6 +191,51 @@ export function DataTable<T>({
 
     return result
   }, [data, columns, debouncedSearch, columnFilters, dateFilters, sortKey, sortDir])
+
+  // Reset to page 1 whenever filters, search, or sort change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [debouncedSearch, columnFilters, dateFilters, sortKey, sortDir])
+
+  // ── Pagination slice ─────────────────────────────────────────────────────
+  const totalFiltered = processedData.length
+  const totalPages = paginated ? Math.max(1, Math.ceil(totalFiltered / pageSize)) : 1
+  // Clamp currentPage if data shrinks
+  const safePage = Math.min(currentPage, totalPages)
+
+  const paginatedData = useMemo(() => {
+    if (!paginated) return processedData
+    const start = (safePage - 1) * pageSize
+    return processedData.slice(start, start + pageSize)
+  }, [processedData, paginated, safePage, pageSize])
+
+  const showingFrom = totalFiltered === 0 ? 0 : (safePage - 1) * pageSize + 1
+  const showingTo = Math.min(safePage * pageSize, totalFiltered)
+
+  const handlePageSizeChange = useCallback(
+    (newSize: PageSize) => {
+      setPageSize(newSize)
+      setCurrentPage(1)
+    },
+    [],
+  )
+
+  /** Generate visible page numbers with ellipsis placeholders (null). */
+  function getPageNumbers(): (number | null)[] {
+    const pages: (number | null)[] = []
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+    } else {
+      pages.push(1)
+      if (safePage > 3) pages.push(null)
+      const start = Math.max(2, safePage - 1)
+      const end = Math.min(totalPages - 1, safePage + 1)
+      for (let i = start; i <= end; i++) pages.push(i)
+      if (safePage < totalPages - 2) pages.push(null)
+      pages.push(totalPages)
+    }
+    return pages
+  }
 
   const totalColumns = columns.length + (renderActions ? 1 : 0)
 
@@ -331,11 +390,11 @@ export function DataTable<T>({
       )}
 
       {/* ── Result count ────────────────────────────────────────────────────── */}
-      {(debouncedSearch || hasActiveFilters) && (
-        <p className="text-xs text-slate-400 dark:text-slate-500">
-          Showing {processedData.length} of {data.length} record{data.length !== 1 ? 's' : ''}
-        </p>
-      )}
+      <p className="text-xs text-slate-400 dark:text-slate-500">
+        {totalFiltered === 0
+          ? `0 of ${data.length} record${data.length !== 1 ? 's' : ''}`
+          : `Showing ${showingFrom}–${showingTo} of ${totalFiltered}${totalFiltered !== data.length ? ` (filtered from ${data.length})` : ''} record${totalFiltered !== 1 ? 's' : ''}`}
+      </p>
 
       {/* ── Table ───────────────────────────────────────────────────────────── */}
       <div className="overflow-x-auto">
@@ -366,7 +425,7 @@ export function DataTable<T>({
             </tr>
           </thead>
           <tbody>
-            {processedData.map((row) => (
+            {paginatedData.map((row) => (
               <tr
                 key={rowKey(row)}
                 className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
@@ -388,7 +447,7 @@ export function DataTable<T>({
               </tr>
             ))}
 
-            {processedData.length === 0 && (
+            {paginatedData.length === 0 && (
               <tr>
                 <td
                   colSpan={totalColumns}
@@ -401,6 +460,78 @@ export function DataTable<T>({
           </tbody>
         </table>
       </div>
+
+      {/* ── Pagination bar ──────────────────────────────────────────────────── */}
+      {paginated && totalFiltered > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+          {/* Page size selector */}
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+            <span>Rows per page</span>
+            <select
+              value={pageSize}
+              onChange={(e) => handlePageSizeChange(Number(e.target.value) as PageSize)}
+              className="rounded-md border border-slate-300 bg-white px-2 py-1 text-xs outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
+            >
+              {PAGE_SIZE_OPTIONS.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Page numbers + prev/next */}
+          <div className="flex items-center gap-1">
+            {/* Prev */}
+            <button
+              type="button"
+              disabled={safePage <= 1}
+              onClick={() => setCurrentPage(safePage - 1)}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm text-slate-500 transition hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed dark:text-slate-400 dark:hover:bg-slate-700"
+              aria-label="Previous page"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            {/* Page numbers */}
+            {getPageNumbers().map((page, idx) =>
+              page === null ? (
+                <span key={`ellipsis-${idx}`} className="px-1 text-slate-400 dark:text-slate-500">
+                  …
+                </span>
+              ) : (
+                <button
+                  key={page}
+                  type="button"
+                  onClick={() => setCurrentPage(page)}
+                  className={`inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-medium transition ${
+                    page === safePage
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  {page}
+                </button>
+              ),
+            )}
+
+            {/* Next */}
+            <button
+              type="button"
+              disabled={safePage >= totalPages}
+              onClick={() => setCurrentPage(safePage + 1)}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm text-slate-500 transition hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed dark:text-slate-400 dark:hover:bg-slate-700"
+              aria-label="Next page"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
