@@ -131,22 +131,32 @@ export const blotterRows: BlotterRow[] = [
 
 export const userRows: UserRow[] = [
   {
+    id: 'user-001',
     name: 'Barangay Admin',
-    role: 'Admin',
+    role: 'admin',
     email: 'admin@barangay.gov.ph',
     status: 'Active',
   },
   {
+    id: 'user-002',
     name: 'Records Staff 1',
-    role: 'Staff',
+    role: 'staff',
     email: 'staff1@barangay.gov.ph',
     status: 'Active',
   },
   {
+    id: 'user-003',
     name: 'Records Staff 2',
-    role: 'Staff',
+    role: 'staff',
     email: 'staff2@barangay.gov.ph',
     status: 'Inactive',
+  },
+  {
+    id: 'user-004',
+    name: 'Barangay Captain',
+    role: 'approver',
+    email: 'captain@barangay.gov.ph',
+    status: 'Active',
   },
 ]
 
@@ -230,6 +240,7 @@ export const quickActions = [
   'Create Household',
   'Issue Certificate',
   'Record Blotter',
+  'Add User',
   'Approve Online Request',
 ]
 
