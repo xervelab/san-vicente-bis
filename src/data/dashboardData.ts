@@ -192,22 +192,28 @@ export const onlineRequestRows: OnlineRequestRow[] = [
 
 export const notificationRows: NotificationRow[] = [
   {
+    id: 'notif-001',
     channel: 'SMS',
     recipient: 'Juan Dela Cruz',
     message: 'Your Barangay Clearance is ready for pickup.',
     status: 'Sent',
+    isRead: false,
   },
   {
+    id: 'notif-002',
     channel: 'Email',
     recipient: 'Maria Santos',
     message: 'Appointment reminder for April 23, 2026.',
     status: 'Delivered',
+    isRead: true,
   },
   {
+    id: 'notif-003',
     channel: 'SMS',
     recipient: 'Ana Villanueva',
     message: 'Please update missing requirements.',
     status: 'Failed',
+    isRead: false,
   },
 ]
 
@@ -242,6 +248,7 @@ export const quickActions = [
   'Record Blotter',
   'Add User',
   'Schedule Appointment',
+  'Send Notification',
   'Approve Online Request',
 ]
 
