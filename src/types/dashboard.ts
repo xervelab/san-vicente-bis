@@ -102,10 +102,11 @@ export type BlotterRow = {
 }
 
 export type UserRow = {
+  id: string
   name: string
-  role: string
   email: string
-  status: string
+  role: UserRole
+  status: 'Active' | 'Inactive'
 }
 
 export type ReportRow = {
