@@ -114,7 +114,7 @@ export type ReportRow = {
   value: string
 }
 
-export type RequestStatus = 'Processing' | 'Approved' | 'Rejected' | 'Released'
+export type RequestStatus = 'Processing' | 'Approved' | 'Rejected' | 'Released' | 'For Pickup'
 
 export type OnlineRequestRow = {
   id: string
@@ -124,11 +124,15 @@ export type OnlineRequestRow = {
   status: RequestStatus
 }
 
+export type NotificationStatus = 'Sent' | 'Delivered' | 'Failed'
+
 export type NotificationRow = {
-  channel: string
+  id: string
+  channel: 'SMS' | 'Email'
   recipient: string
   message: string
-  status: string
+  status: NotificationStatus
+  isRead: boolean
 }
 
 export type AppointmentStatus = 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled'

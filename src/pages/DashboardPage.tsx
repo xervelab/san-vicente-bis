@@ -14,7 +14,7 @@ import { AppointmentsModule, SCHEDULE_APPOINTMENT_EVENT } from '../modules/Appoi
 import { BlotterModule, FILE_BLOTTER_EVENT } from '../modules/BlotterModule'
 import { CertificatesModule, ISSUE_CERTIFICATE_EVENT } from '../modules/CertificatesModule'
 import { HouseholdModule, ADD_HOUSEHOLD_EVENT } from '../modules/HouseholdModule'
-import { NotificationsModule } from '../modules/NotificationsModule'
+import { NotificationsModule, SEND_NOTIFICATION_EVENT } from '../modules/NotificationsModule'
 import { OnlineRequestsModule } from '../modules/OnlineRequestsModule'
 import { ReportsModule } from '../modules/ReportsModule'
 import { ResidentModule, ADD_RESIDENT_EVENT } from '../modules/ResidentModule'
@@ -407,6 +407,7 @@ export function DashboardPage() {
                       'Add User': 'users',
                       'Schedule Appointment': 'appointments',
                       'Approve Online Request': 'onlineRequests',
+                      'Send Notification': 'notifications',
                     }
                     const isActive = actionModuleMap[action] === activeModule
 
@@ -457,6 +458,13 @@ export function DashboardPage() {
                             window.setTimeout(() => {
                               window.dispatchEvent(new Event(SCHEDULE_APPOINTMENT_EVENT))
                             }, activeModule !== 'appointments' ? 600 : 0)
+                          } else if (action === 'Send Notification') {
+                            if (activeModule !== 'notifications') {
+                              navigate(`/dashboard/notifications`)
+                            }
+                            window.setTimeout(() => {
+                              window.dispatchEvent(new Event(SEND_NOTIFICATION_EVENT))
+                            }, activeModule !== 'notifications' ? 600 : 0)
                           }
                         }}
                         className={`rounded-lg px-3 py-2 text-left text-sm transition ${
