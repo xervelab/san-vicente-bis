@@ -89,11 +89,16 @@ export type CertificateRow = {
   status: string
 }
 
+export type BlotterStatus = 'Filed' | 'Under Investigation' | 'Resolved' | 'Dismissed'
+
 export type BlotterRow = {
   code: string
   complainant: string
+  respondent: string
   incident: string
-  status: string
+  incidentDetails: string
+  incidentDate: string
+  status: BlotterStatus
 }
 
 export type UserRow = {
