@@ -114,12 +114,14 @@ export type ReportRow = {
   value: string
 }
 
+export type RequestStatus = 'Processing' | 'Approved' | 'Rejected' | 'Released'
+
 export type OnlineRequestRow = {
   id: string
   resident: string
   service: string
   submittedAt: string
-  status: string
+  status: RequestStatus
 }
 
 export type NotificationRow = {
@@ -129,10 +131,12 @@ export type NotificationRow = {
   status: string
 }
 
+export type AppointmentStatus = 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled'
+
 export type AppointmentRow = {
   code: string
   resident: string
   service: string
   schedule: string
-  status: string
+  status: AppointmentStatus
 }
