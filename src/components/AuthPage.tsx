@@ -2,8 +2,9 @@ import { useState, type FormEvent } from 'react'
 import { BrandLogo } from './BrandLogo'
 import { LoadingOverlay } from './LoadingOverlay'
 import type { CurrentUser, UserRole } from '../types/dashboard'
+import { authService } from '../services/authService'
 
-export type AuthMode = 'login' | 'signup' | 'forgot'
+export type AuthMode = 'login' | 'signup' | 'forgot' | 'reset'
 
 type AuthPageProps = {
   mode: AuthMode
@@ -33,22 +34,24 @@ export function AuthPage({ mode, onChangeMode, onAuthenticate }: AuthPageProps) 
   const [signupEmail, setSignupEmail] = useState('')
   const [signupPassword, setSignupPassword] = useState('')
   const [forgotEmail, setForgotEmail] = useState('')
+  const [resetToken, setResetToken] = useState('')
+  const [resetEmail, setResetEmail] = useState('')
+  const [resetPassword, setResetPassword] = useState('')
   const [message, setMessage] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const [processingMessage, setProcessingMessage] = useState('Processing request...')
 
-  const runProcessing = (label: string, task: () => void) => {
+  const startProcessing = (label: string) => {
     setMessage('')
     setProcessingMessage(label)
     setIsProcessing(true)
-
-    window.setTimeout(() => {
-      task()
-      setIsProcessing(false)
-    }, 1100)
   }
 
-  const handleLogin = (event: FormEvent<HTMLFormElement>) => {
+  const endProcessing = () => {
+    setIsProcessing(false)
+  }
+
+  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (!loginEmail || !loginPassword) {
@@ -56,23 +59,18 @@ export function AuthPage({ mode, onChangeMode, onAuthenticate }: AuthPageProps) 
       return
     }
 
-    const demo = DEMO_ACCOUNTS[loginEmail.toLowerCase().trim()]
-
-    runProcessing('Signing in...', () => {
-      if (demo) {
-        onAuthenticate({ email: loginEmail, ...demo })
-      } else {
-        onAuthenticate({
-          name: loginEmail.split('@')[0] ?? 'Barangay User',
-          email: loginEmail,
-          role: 'resident',
-          roleName: 'Resident',
-        })
-      }
-    })
+    startProcessing('Signing in...')
+    try {
+      const user = await authService.login({ email: loginEmail.trim(), password: loginPassword })
+      onAuthenticate(user)
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Unable to sign in. Please try again.')
+    } finally {
+      endProcessing()
+    }
   }
 
-  const handleSignUp = (event: FormEvent<HTMLFormElement>) => {
+  const handleSignUp = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (!signupName || !signupEmail || !signupPassword) {
@@ -80,17 +78,22 @@ export function AuthPage({ mode, onChangeMode, onAuthenticate }: AuthPageProps) 
       return
     }
 
-    runProcessing('Creating account...', () => {
-      onAuthenticate({
-        name: signupName,
-        email: signupEmail,
-        role: 'resident',
-        roleName: 'Resident',
+    startProcessing('Creating account...')
+    try {
+      const user = await authService.register({
+        name: signupName.trim(),
+        email: signupEmail.trim(),
+        password: signupPassword,
       })
-    })
+      onAuthenticate(user)
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Unable to create your account. Please try again.')
+    } finally {
+      endProcessing()
+    }
   }
 
-  const handleForgotPassword = (event: FormEvent<HTMLFormElement>) => {
+  const handleForgotPassword = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (!forgotEmail) {
@@ -98,20 +101,50 @@ export function AuthPage({ mode, onChangeMode, onAuthenticate }: AuthPageProps) 
       return
     }
 
-    runProcessing('Sending reset link...', () => {
-      setMessage(`Password reset link sent to ${forgotEmail} (demo).`)
-    })
+    startProcessing('Sending reset link...')
+    try {
+      const response = await authService.forgotPassword(forgotEmail.trim())
+      setMessage(response.message ?? `Password reset link sent to ${forgotEmail.trim()}.`)
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Unable to send reset instructions. Please try again.')
+    } finally {
+      endProcessing()
+    }
+  }
+
+  const handleResetPassword = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    if (!resetToken || !resetEmail || !resetPassword) {
+      setMessage('Please complete all reset password fields.')
+      return
+    }
+
+    startProcessing('Resetting password...')
+    try {
+      const response = await authService.resetPassword({
+        token: resetToken.trim(),
+        email: resetEmail.trim(),
+        password: resetPassword,
+      })
+      setMessage(response.message ?? 'Your password has been reset successfully.')
+      onChangeMode('login')
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Unable to reset your password. Please try again.')
+    } finally {
+      endProcessing()
+    }
   }
 
   const handleGoogleSignIn = () => {
-    runProcessing('Signing in with Google...', () => {
-      onAuthenticate({
-        name: 'Google User',
-        email: 'google@bisv.ph',
-        role: 'resident',
-        roleName: 'Resident',
-      })
-    })
+    // runProcessing('Signing in with Google...', () => {
+    //   onAuthenticate({
+    //     name: 'Google User',
+    //     email: 'google@bisv.ph',
+    //     role: 'resident',
+    //     roleName: 'Resident',
+    //   })
+    // })
   }
 
   const fillDemo = (email: string) => {
@@ -253,6 +286,58 @@ export function AuthPage({ mode, onChangeMode, onAuthenticate }: AuthPageProps) 
                 className="w-full rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300"
               >
                 Send Reset Link
+              </button>
+              <button
+                type="button"
+                disabled={isProcessing}
+                onClick={() => onChangeMode('reset')}
+                className="w-full text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+              >
+                I have a reset token
+              </button>
+              <button
+                type="button"
+                disabled={isProcessing}
+                onClick={() => onChangeMode('login')}
+                className="w-full text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+              >
+                Back to login
+              </button>
+            </form>
+          )}
+
+          {mode === 'reset' && (
+            <form className="space-y-3" onSubmit={handleResetPassword}>
+              <input
+                type="text"
+                value={resetToken}
+                onChange={(event) => setResetToken(event.target.value)}
+                disabled={isProcessing}
+                placeholder="Reset token"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              />
+              <input
+                type="email"
+                value={resetEmail}
+                onChange={(event) => setResetEmail(event.target.value)}
+                disabled={isProcessing}
+                placeholder="Account email"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              />
+              <input
+                type="password"
+                value={resetPassword}
+                onChange={(event) => setResetPassword(event.target.value)}
+                disabled={isProcessing}
+                placeholder="New password"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              />
+              <button
+                type="submit"
+                disabled={isProcessing}
+                className="w-full rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300"
+              >
+                Reset Password
               </button>
               <button
                 type="button"

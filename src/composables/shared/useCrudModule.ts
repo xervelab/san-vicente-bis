@@ -3,8 +3,8 @@ import { useCallback, useEffect, useState } from 'react'
 type CrudApi<T> = {
   getAll: () => Promise<T[]>
   create: (payload: T) => Promise<T>
-  update: (id: string, payload: Partial<T>) => Promise<T | null>
-  remove: (id: string) => Promise<boolean>
+  update: (id: number, payload: Partial<T>) => Promise<T | null>
+  remove: (id: number) => Promise<boolean>
 }
 
 export function useCrudModule<T>(service: CrudApi<T>) {
@@ -35,7 +35,7 @@ export function useCrudModule<T>(service: CrudApi<T>) {
   )
 
   const updateItem = useCallback(
-    async (id: string, payload: Partial<T>) => {
+    async (id: number, payload: Partial<T>) => {
       const updated = await service.update(id, payload)
       await loadData()
       return updated
@@ -44,7 +44,7 @@ export function useCrudModule<T>(service: CrudApi<T>) {
   )
 
   const deleteItem = useCallback(
-    async (id: string) => {
+    async (id: number) => {
       const removed = await service.remove(id)
       await loadData()
       return removed
