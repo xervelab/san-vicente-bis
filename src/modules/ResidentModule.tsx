@@ -78,13 +78,13 @@ export function ResidentModule() {
     setIsDeleteOpen(true)
   }
 
-  async function handleFormSubmit(data: ResidentRow) {
+  async function handleFormSubmit(data: Omit<ResidentRow, 'id'>) {
     setIsSubmitting(true)
     try {
       if (editingResident) {
-        await updateItem(editingResident.name, data)
+        await updateItem(editingResident.id, data)
       } else {
-        await createItem(data)
+        await createItem(data as ResidentRow)
       }
       setIsFormOpen(false)
     } catch {
@@ -98,7 +98,7 @@ export function ResidentModule() {
     if (!deletingResident) return
     setIsDeleting(true)
     try {
-      await deleteItem(deletingResident.name)
+      await deleteItem(deletingResident.id)
       setIsDeleteOpen(false)
       setDeletingResident(null)
     } catch {
@@ -174,7 +174,12 @@ export function ResidentModule() {
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
         onSubmit={handleFormSubmit}
-        initialData={editingResident}
+        initialData={editingResident ? {
+          name: editingResident.name,
+          age: editingResident.age,
+          purok: editingResident.purok,
+          status: editingResident.status,
+        } : null}
         isSubmitting={isSubmitting}
       />
 

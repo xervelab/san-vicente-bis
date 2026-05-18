@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import type { CurrentUser, Theme } from '../types/dashboard'
 import { ROLE_MODULE_ACCESS } from '../types/dashboard'
 import type { ModuleKey } from '../types/dashboard'
+import { authService } from '../services/authService'
 
 type AuthContextValue = {
   currentUser: CurrentUser | null
@@ -55,6 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = () => {
+    authService.logout().catch(() => null)
     setCurrentUser(null)
     sessionStorage.removeItem(STORAGE_KEY)
   }

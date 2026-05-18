@@ -69,6 +69,7 @@ export function canAccessModule(role: UserRole, module: ModuleKey): boolean {
 }
 
 export type ResidentRow = {
+  id: number
   name: string
   age: number
   purok: string
@@ -76,6 +77,7 @@ export type ResidentRow = {
 }
 
 export type HouseholdRow = {
+  id: number
   head: string
   members: number
   address: string
@@ -83,6 +85,7 @@ export type HouseholdRow = {
 }
 
 export type CertificateRow = {
+  id: number
   type: string
   resident: string
   date: string
@@ -92,6 +95,7 @@ export type CertificateRow = {
 export type BlotterStatus = 'Filed' | 'Under Investigation' | 'Resolved' | 'Dismissed'
 
 export type BlotterRow = {
+  id: number
   code: string
   complainant: string
   respondent: string

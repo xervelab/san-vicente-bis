@@ -1,4 +1,4 @@
-export type Identifier = string
+export type Identifier = number
 
 export type CrudMethods<T> = {
   getAll: () => Promise<T[]>

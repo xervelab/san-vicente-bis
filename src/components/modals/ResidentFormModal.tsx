@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import type { ResidentRow } from '../../types/dashboard'
 
+type ResidentFormData = Omit<ResidentRow, 'id'>
+
 type ResidentFormModalProps = {
   isOpen: boolean
   onClose: () => void
-  onSubmit: (data: ResidentRow) => Promise<void>
+  onSubmit: (data: ResidentFormData) => Promise<void>
   /** When provided the form is in "Edit" mode and fields are pre-filled. */
-  initialData?: ResidentRow | null
+  initialData?: ResidentFormData | null
   isSubmitting?: boolean
 }
 
@@ -15,7 +17,7 @@ type FormErrors = Partial<Record<keyof ResidentRow, string>>
 const PUROK_OPTIONS = ['Purok 1', 'Purok 2', 'Purok 3', 'Purok 4', 'Purok 5', 'Purok 6']
 const STATUS_OPTIONS = ['Active', 'Inactive', 'Senior', 'Deceased', 'Transferred']
 
-const emptyForm: ResidentRow = { name: '', age: 0, purok: '', status: 'Active' }
+const emptyForm: ResidentFormData = { name: '', age: 0, purok: '', status: 'Active' }
 
 export function ResidentFormModal({
   isOpen,
@@ -25,7 +27,7 @@ export function ResidentFormModal({
   isSubmitting = false,
 }: ResidentFormModalProps) {
   const isEditMode = Boolean(initialData)
-  const [form, setForm] = useState<ResidentRow>(emptyForm)
+  const [form, setForm] = useState<ResidentFormData>(emptyForm)
   const [errors, setErrors] = useState<FormErrors>({})
 
   // Reset form whenever the modal opens or initialData changes

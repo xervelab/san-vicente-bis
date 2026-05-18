@@ -6,7 +6,7 @@ import { USE_HTTP_SERVICES } from './shared/serviceConfig'
 
 const residentCrud: CrudMethods<ResidentRow> = USE_HTTP_SERVICES
   ? createHttpCrudService<ResidentRow>('/residents')
-  : createInMemoryCrudService<ResidentRow>(residentRows, (item) => item.name)
+  : createInMemoryCrudService<ResidentRow>(residentRows, (item) => item.id)
 
 export const residentService = {
   ...residentCrud,
