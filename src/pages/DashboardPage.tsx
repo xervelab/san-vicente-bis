@@ -10,15 +10,15 @@ import {
   recentActivity,
   statCards,
 } from '../data/dashboardData'
-import { AppointmentsModule } from '../modules/AppointmentsModule'
-import { BlotterModule } from '../modules/BlotterModule'
-import { CertificatesModule } from '../modules/CertificatesModule'
-import { HouseholdModule } from '../modules/HouseholdModule'
-import { NotificationsModule } from '../modules/NotificationsModule'
+import { AppointmentsModule, SCHEDULE_APPOINTMENT_EVENT } from '../modules/AppointmentsModule'
+import { BlotterModule, FILE_BLOTTER_EVENT } from '../modules/BlotterModule'
+import { CertificatesModule, ISSUE_CERTIFICATE_EVENT } from '../modules/CertificatesModule'
+import { HouseholdModule, ADD_HOUSEHOLD_EVENT } from '../modules/HouseholdModule'
+import { NotificationsModule, SEND_NOTIFICATION_EVENT } from '../modules/NotificationsModule'
 import { OnlineRequestsModule } from '../modules/OnlineRequestsModule'
 import { ReportsModule } from '../modules/ReportsModule'
-import { ResidentModule } from '../modules/ResidentModule'
-import { UsersModule } from '../modules/UsersModule'
+import { ResidentModule, ADD_RESIDENT_EVENT } from '../modules/ResidentModule'
+import { UsersModule, ADD_USER_EVENT } from '../modules/UsersModule'
 import type { ModuleKey } from '../types/dashboard'
 import { canAccessModule, ROLE_MODULE_ACCESS } from '../types/dashboard'
 
@@ -397,15 +397,86 @@ export function DashboardPage() {
               <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                 <h3 className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">Quick Actions</h3>
                 <div className="grid gap-2">
-                  {quickActions.map((action) => (
-                    <button
-                      key={action}
-                      type="button"
-                      className="rounded-lg bg-slate-100 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-                    >
-                      {action}
-                    </button>
-                  ))}
+                  {quickActions.map((action) => {
+                    // Determine which module this action relates to for highlighting
+                    const actionModuleMap: Record<string, ModuleKey> = {
+                      'Add Resident': 'resident',
+                      'Create Household': 'household',
+                      'Issue Certificate': 'certificates',
+                      'Record Blotter': 'blotter',
+                      'Add User': 'users',
+                      'Schedule Appointment': 'appointments',
+                      'Approve Online Request': 'onlineRequests',
+                      'Send Notification': 'notifications',
+                    }
+                    const isActive = actionModuleMap[action] === activeModule
+
+                    return (
+                      <button
+                        key={action}
+                        type="button"
+                        onClick={() => {
+                          if (action === 'Add Resident') {
+                            if (activeModule !== 'resident') {
+                              navigate(`/dashboard/resident`)
+                            }
+                            window.setTimeout(() => {
+                              window.dispatchEvent(new Event(ADD_RESIDENT_EVENT))
+                            }, activeModule !== 'resident' ? 600 : 0)
+                          } else if (action === 'Create Household') {
+                            if (activeModule !== 'household') {
+                              navigate(`/dashboard/household`)
+                            }
+                            window.setTimeout(() => {
+                              window.dispatchEvent(new Event(ADD_HOUSEHOLD_EVENT))
+                            }, activeModule !== 'household' ? 600 : 0)
+                          } else if (action === 'Issue Certificate') {
+                            if (activeModule !== 'certificates') {
+                              navigate(`/dashboard/certificates`)
+                            }
+                            window.setTimeout(() => {
+                              window.dispatchEvent(new Event(ISSUE_CERTIFICATE_EVENT))
+                            }, activeModule !== 'certificates' ? 600 : 0)
+                          } else if (action === 'Record Blotter') {
+                            if (activeModule !== 'blotter') {
+                              navigate(`/dashboard/blotter`)
+                            }
+                            window.setTimeout(() => {
+                              window.dispatchEvent(new Event(FILE_BLOTTER_EVENT))
+                            }, activeModule !== 'blotter' ? 600 : 0)
+                          } else if (action === 'Add User') {
+                            if (activeModule !== 'users') {
+                              navigate(`/dashboard/users`)
+                            }
+                            window.setTimeout(() => {
+                              window.dispatchEvent(new Event(ADD_USER_EVENT))
+                            }, activeModule !== 'users' ? 600 : 0)
+                          } else if (action === 'Schedule Appointment') {
+                            if (activeModule !== 'appointments') {
+                              navigate(`/dashboard/appointments`)
+                            }
+                            window.setTimeout(() => {
+                              window.dispatchEvent(new Event(SCHEDULE_APPOINTMENT_EVENT))
+                            }, activeModule !== 'appointments' ? 600 : 0)
+                          } else if (action === 'Send Notification') {
+                            if (activeModule !== 'notifications') {
+                              navigate(`/dashboard/notifications`)
+                            }
+                            window.setTimeout(() => {
+                              window.dispatchEvent(new Event(SEND_NOTIFICATION_EVENT))
+                            }, activeModule !== 'notifications' ? 600 : 0)
+                          }
+                        }}
+                        className={`rounded-lg px-3 py-2 text-left text-sm transition ${
+                          isActive
+                            ? 'bg-indigo-100 text-indigo-700 ring-1 ring-indigo-300 dark:bg-indigo-500/20 dark:text-indigo-300 dark:ring-indigo-500/40'
+                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700'
+                        }`}
+                      >
+                        {action}
+                      </button>
+                    )
+                  })}
                 </div>
               </section>
 

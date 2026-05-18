@@ -103,41 +103,60 @@ export const blotterRows: BlotterRow[] = [
   {
     code: 'BLT-2026-031',
     complainant: 'R. Flores',
+    respondent: 'A. Ramos',
     incident: 'Noise Complaint',
-    status: 'Open',
+    incidentDetails: 'Loud karaoke past midnight in Purok 3, affecting neighboring households.',
+    incidentDate: '2026-04-18',
+    status: 'Filed',
   },
   {
     code: 'BLT-2026-028',
     complainant: 'J. Rivera',
+    respondent: 'P. Gutierrez',
     incident: 'Boundary Dispute',
-    status: 'Mediation',
+    incidentDetails: 'Respondent allegedly encroached on complainant property boundary by 2 meters.',
+    incidentDate: '2026-04-10',
+    status: 'Under Investigation',
   },
   {
     code: 'BLT-2026-017',
     complainant: 'M. Cruz',
+    respondent: 'L. Villanueva',
     incident: 'Public Disturbance',
+    incidentDetails: 'Verbal altercation in public market that escalated to shoving.',
+    incidentDate: '2026-03-29',
     status: 'Resolved',
   },
 ]
 
 export const userRows: UserRow[] = [
   {
+    id: 'user-001',
     name: 'Barangay Admin',
-    role: 'Admin',
+    role: 'admin',
     email: 'admin@barangay.gov.ph',
     status: 'Active',
   },
   {
+    id: 'user-002',
     name: 'Records Staff 1',
-    role: 'Staff',
+    role: 'staff',
     email: 'staff1@barangay.gov.ph',
     status: 'Active',
   },
   {
+    id: 'user-003',
     name: 'Records Staff 2',
-    role: 'Staff',
+    role: 'staff',
     email: 'staff2@barangay.gov.ph',
     status: 'Inactive',
+  },
+  {
+    id: 'user-004',
+    name: 'Barangay Captain',
+    role: 'approver',
+    email: 'captain@barangay.gov.ph',
+    status: 'Active',
   },
 ]
 
@@ -173,22 +192,28 @@ export const onlineRequestRows: OnlineRequestRow[] = [
 
 export const notificationRows: NotificationRow[] = [
   {
+    id: 'notif-001',
     channel: 'SMS',
     recipient: 'Juan Dela Cruz',
     message: 'Your Barangay Clearance is ready for pickup.',
     status: 'Sent',
+    isRead: false,
   },
   {
+    id: 'notif-002',
     channel: 'Email',
     recipient: 'Maria Santos',
     message: 'Appointment reminder for April 23, 2026.',
     status: 'Delivered',
+    isRead: true,
   },
   {
+    id: 'notif-003',
     channel: 'SMS',
     recipient: 'Ana Villanueva',
     message: 'Please update missing requirements.',
     status: 'Failed',
+    isRead: false,
   },
 ]
 
@@ -221,6 +246,9 @@ export const quickActions = [
   'Create Household',
   'Issue Certificate',
   'Record Blotter',
+  'Add User',
+  'Schedule Appointment',
+  'Send Notification',
   'Approve Online Request',
 ]
 
@@ -238,8 +266,11 @@ export const statusStyles: Record<string, string> = {
   Processing: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
   'For Pickup': 'bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300',
   Open: 'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300',
-  Mediation: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
+  Filed: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
+  'Under Investigation': 'bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300',
   Resolved: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300',
+  Dismissed: 'bg-slate-200 text-slate-700 dark:bg-slate-600/40 dark:text-slate-200',
+  Mediation: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
   Inactive: 'bg-slate-200 text-slate-700 dark:bg-slate-600/40 dark:text-slate-200',
   Sent: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300',
   Delivered: 'bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300',
@@ -247,4 +278,7 @@ export const statusStyles: Record<string, string> = {
   Confirmed: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300',
   Pending: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
   Completed: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300',
+  Rejected: 'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300',
+  Approved: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300',
+  Cancelled: 'bg-slate-200 text-slate-700 dark:bg-slate-600/40 dark:text-slate-200',
 }

@@ -78,6 +78,7 @@ export function LandingPage() {
   const goToLogin = () => navigate('/login')
   const [scrolled, setScrolled] = useState(false)
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'))
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const toggleTheme = () => {
     const next = !isDark
@@ -98,8 +99,8 @@ export function LandingPage() {
       {/* Navbar */}
       <header
         className={`fixed top-0 z-40 w-full transition-all duration-300 ${
-          scrolled
-            ? 'bg-white/90 shadow-sm backdrop-blur-md dark:bg-slate-950/90'
+          scrolled || mobileMenuOpen
+            ? 'bg-white/95 shadow-sm backdrop-blur-md dark:bg-slate-950/95'
             : 'bg-transparent'
         }`}
       >
@@ -136,13 +137,66 @@ export function LandingPage() {
                 </svg>
               )}
             </button>
+            {/* Hamburger button – visible on mobile */}
+            <button
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white/80 text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-700 md:hidden"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? (
+                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
             <button
               onClick={goToLogin}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+              className="hidden rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 md:inline-flex"
             >
               Sign In
             </button>
           </div>
+        </div>
+
+        {/* Mobile navigation drawer */}
+        <div
+          className={`overflow-hidden transition-all duration-300 md:hidden ${
+            mobileMenuOpen ? 'max-h-72 border-t border-slate-100 bg-white/95 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/95' : 'max-h-0'
+          }`}
+        >
+          <nav className="flex flex-col gap-1 px-6 py-4">
+            <a
+              href="#features"
+              onClick={() => setMobileMenuOpen(false)}
+              className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+            >
+              Features
+            </a>
+            <a
+              href="#about"
+              onClick={() => setMobileMenuOpen(false)}
+              className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+            >
+              About
+            </a>
+            <a
+              href="#contact"
+              onClick={() => setMobileMenuOpen(false)}
+              className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+            >
+              Contact
+            </a>
+            <button
+              onClick={() => { setMobileMenuOpen(false); goToLogin(); }}
+              className="mt-2 w-full rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+            >
+              Sign In
+            </button>
+          </nav>
         </div>
       </header>
 

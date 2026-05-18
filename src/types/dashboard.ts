@@ -89,18 +89,24 @@ export type CertificateRow = {
   status: string
 }
 
+export type BlotterStatus = 'Filed' | 'Under Investigation' | 'Resolved' | 'Dismissed'
+
 export type BlotterRow = {
   code: string
   complainant: string
+  respondent: string
   incident: string
-  status: string
+  incidentDetails: string
+  incidentDate: string
+  status: BlotterStatus
 }
 
 export type UserRow = {
+  id: string
   name: string
-  role: string
   email: string
-  status: string
+  role: UserRole
+  status: 'Active' | 'Inactive'
 }
 
 export type ReportRow = {
@@ -108,25 +114,33 @@ export type ReportRow = {
   value: string
 }
 
+export type RequestStatus = 'Processing' | 'Approved' | 'Rejected' | 'Released' | 'For Pickup'
+
 export type OnlineRequestRow = {
   id: string
   resident: string
   service: string
   submittedAt: string
-  status: string
+  status: RequestStatus
 }
 
+export type NotificationStatus = 'Sent' | 'Delivered' | 'Failed'
+
 export type NotificationRow = {
-  channel: string
+  id: string
+  channel: 'SMS' | 'Email'
   recipient: string
   message: string
-  status: string
+  status: NotificationStatus
+  isRead: boolean
 }
+
+export type AppointmentStatus = 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled'
 
 export type AppointmentRow = {
   code: string
   resident: string
   service: string
   schedule: string
-  status: string
+  status: AppointmentStatus
 }
