@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react'
 import { useCrudModule } from './shared/useCrudModule'
 import { userService } from '../services/userService'
-import type { UserRow } from '../types/dashboard'
 
 export function useUsersModule() {
   const crud = useCrudModule(userService)

@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { useCrudModule } from './shared/useCrudModule'
 import { onlineRequestService } from '../services/onlineRequestService'
-import type { OnlineRequestRow, RequestStatus } from '../types/dashboard'
+import type { RequestStatus } from '../types/dashboard'
 
 export function useOnlineRequestsModule() {
   const crud = useCrudModule(onlineRequestService)
