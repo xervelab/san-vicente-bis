@@ -67,9 +67,9 @@ export const statCards = [
 ]
 
 export const residentRows: ResidentRow[] = [
-  { name: 'Juan Dela Cruz', age: 38, purok: 'Purok 1', status: 'Active' },
-  { name: 'Maria Santos', age: 29, purok: 'Purok 3', status: 'Active' },
-  { name: 'Pedro Reyes', age: 66, purok: 'Purok 2', status: 'Senior' },
+  { id: 1, name: 'Juan Dela Cruz', age: 38, purok: 'Purok 1', status: 'Active' },
+  { id: 2, name: 'Maria Santos', age: 29, purok: 'Purok 3', status: 'Active' },
+  { id: 3, name: 'Pedro Reyes', age: 66, purok: 'Purok 2', status: 'Senior' },
 ]
 
 export const householdRows: HouseholdRow[] = [

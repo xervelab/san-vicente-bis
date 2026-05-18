@@ -77,7 +77,7 @@ export type ResidentRow = {
 }
 
 export type HouseholdRow = {
-  id: number
+  id?: number
   head: string
   members: number
   address: string
@@ -85,7 +85,7 @@ export type HouseholdRow = {
 }
 
 export type CertificateRow = {
-  id: number
+  id?: number
   type: string
   resident: string
   date: string
@@ -95,7 +95,7 @@ export type CertificateRow = {
 export type BlotterStatus = 'Filed' | 'Under Investigation' | 'Resolved' | 'Dismissed'
 
 export type BlotterRow = {
-  id: number
+  id?: number
   code: string
   complainant: string
   respondent: string
